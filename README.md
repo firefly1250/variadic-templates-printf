@@ -1,3 +1,3 @@
-sprintf-like function using "variadic templates"
+light version of snprintf for embedded system
 
-light sprintf for embedded system
+type safety is ensured using variadic templates
