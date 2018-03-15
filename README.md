@@ -1,1 +1,1 @@
-variadic_templates_printf
+sprintf-like function using "variadic templates"
