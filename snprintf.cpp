@@ -22,41 +22,40 @@ public:
 	}
 
 	int Print(const char* format, const size_t max_length) {
-		if (format == nullptr || *format == '\0' || max_length == 0) return 0;
-		return  Output(format, max_length, 0, Pad::Default());
+		if (format == nullptr) return 0;
+		return Output(format, max_length, 0, Pad::Default());
 	}
 
 	template<typename Head, typename ... Tail>
 	int Print(const char* format, const size_t max_length, const Head& head, const Tail&... tail) {
-		if (format == nullptr || *format == '\0' || max_length == 0) return 0;
+		if (format == nullptr) return 0;
 
-		if (*format == '%') {
-			format++;
-			int width = 0;
-			Pad pad;
-
-			if (*format == '\0') return 0;
-			if (*format == '%') {
-				size_t length = PrintChar('%');
-				return length + Print(++format, max_length - length, tail...);
-			}
-			for (; *format == '-' || *format == '+'; format++) {
-				if (*format == '-') pad.right = false;
-				if (*format == '+') pad.plus = true;
-			}
-			for (; *format == '0'; format++) pad.zero = true;
-			for (; *format >= '0' && *format <= '9'; format++) {
-				width *= 10;
-				width += *format - '0';
-			}
-
-			size_t length = Output(head, max_length, width, pad);
-			return length + Print(++format, max_length - length, tail...);
+		size_t length = 0;
+		for (; *format != '%'; format++) {
+			if (max_length == length || *format == '\0') return length;
+			length += PrintChar(*format);
 		}
-		else {
-			size_t length = PrintChar((const char)*format);
+		format++;
+		int width = 0;
+		Pad pad;
+
+		if (*format == '\0') return length;
+		if (*format == '%') {
+			length += PrintChar('%');
 			return length + Print(++format, max_length - length, head, tail...);
 		}
+		for (; *format == '-' || *format == '+'; format++) {
+			if (*format == '-') pad.right = false;
+			if (*format == '+') pad.plus = true;
+		}
+		for (; *format == '0'; format++) pad.zero = true;
+		for (; *format >= '0' && *format <= '9'; format++) {
+			width *= 10;
+			width += *format - '0';
+		}
+
+		length += Output(head, max_length, width, pad);
+		return length + Print(++format, max_length - length, tail...);
 	}
 
 	void Show() {
@@ -147,7 +146,7 @@ private:
 		if (n >= 0) return n;
 		else return -n;
 	}
-	
+
 
 };
 
