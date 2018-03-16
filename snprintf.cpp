@@ -23,7 +23,7 @@ public:
 
 	int Print(const char* format, const size_t max_length) {
 		if (format == nullptr) return 0;
-		return Output(format, max_length, 0, Pad::Default());
+		return Output(format, max_length, 0, 0, Pad::Default());
 	}
 
 	template<typename Head, typename ... Tail>
@@ -36,7 +36,7 @@ public:
 			length += PrintChar(*format);
 		}
 		format++;
-		int width = 0;
+		size_t width = 0;
 		Pad pad;
 
 		if (*format == '\0') return length;
@@ -53,8 +53,18 @@ public:
 			width *= 10;
 			width += *format - '0';
 		}
+		size_t width_decimal;
+		if (*format == '.'){
+			width_decimal=0;
+			format++;
+			for (; *format >= '0' && *format <= '9'; format++) {
+				width_decimal *= 10;
+				width_decimal += *format - '0';
+			}
+		}
+		else width_decimal=0;
 
-		length += Output(head, max_length, width, pad);
+		length += Output(head, max_length, width, width_decimal, pad);
 		return length + Print(++format, max_length - length, tail...);
 	}
 
@@ -68,16 +78,16 @@ private:
 		return 1;
 	}
 
-	size_t Output(const char c, const size_t max_length, const size_t width, const Pad pad) {
+	size_t Output(const char c, const size_t max_length, const size_t width,const size_t width_decimal,const Pad pad) {
 		const char str[2] = { c,'\0' };
-		return Output(str, max_length, width, pad);
+		return Output(str, max_length, width, width_decimal, pad);
 	}
 	
-	size_t Output(const bool b, const size_t max_length, const size_t width, const Pad pad) {
-		return Output(b ? "true" : "false", max_length, width, pad);
+	size_t Output(const bool b, const size_t max_length, const size_t width,const size_t width_decimal,const Pad pad) {
+		return Output(b ? "true" : "false", max_length, width, width_decimal, pad);
 	}
 
-	size_t Output(const char* str, const size_t max_length, const size_t width, const Pad pad) {
+	size_t Output(const char* str, const size_t max_length, const size_t width,const size_t width_decimal,const Pad pad) {
 		const size_t length = GetLength(str);
 		size_t i = 0;
 		if (pad.right) {
@@ -101,7 +111,7 @@ private:
 		}
 		return i;
 	}
-	size_t Output(const int _n, const size_t max_length, const size_t width, const Pad pad) {
+	size_t Output(const int _n, const size_t max_length, const size_t width,const size_t width_decimal,const Pad pad) {
 		char str[MAX_NUMBER_LENGTH]{};
 
 		int n = Abs(_n);
@@ -127,7 +137,7 @@ private:
 			str[i] = n % 10 + '0';
 			n /= 10;
 		}
-		return printed_length + Output(str, max_length - printed_length, width - printed_length, pad);
+		return printed_length + Output(str, max_length - printed_length, width - printed_length, width_decimal, pad);
 	}
 
 	size_t GetLength(const char* str) {
