@@ -72,6 +72,10 @@ private:
 		const char str[2] = { c,'\0' };
 		return Output(str, max_length, width, pad);
 	}
+	
+	size_t Output(const bool b, const size_t max_length, const size_t width, const Pad pad) {
+		return Output(b ? "true" : "false", max_length, width, pad);
+	}
 
 	size_t Output(const char* str, const size_t max_length, const size_t width, const Pad pad) {
 		const size_t length = GetLength(str);
