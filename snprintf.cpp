@@ -1,5 +1,8 @@
 #include <stdio.h>
 
+using int32_t = int;
+using uint32_t = unsigned int;
+
 class Snprintf {
 	static constexpr size_t MAX_NUMBER_LENGTH = 20;
 	unsigned char buffer[256];
@@ -21,13 +24,13 @@ public:
 		for (auto &e : buffer) e = '\0';
 	}
 
-	int Print(const char* format, const size_t max_length) {
+	size_t Print(const char* format, const size_t max_length) {
 		if (format == nullptr) return 0;
 		return Output(format, max_length, 0, 0, Pad::Default());
 	}
 
 	template<typename Head, typename ... Tail>
-	int Print(const char* format, const size_t max_length, const Head& head, const Tail&... tail) {
+	size_t Print(const char* format, const size_t max_length, const Head& head, const Tail&... tail) {
 		if (format == nullptr) return 0;
 
 		size_t length = 0;
@@ -78,21 +81,24 @@ private:
 		return 1;
 	}
 
+	//char
 	size_t Output(const char c, const size_t max_length, const size_t width,const size_t width_decimal,const Pad pad) {
 		const char str[2] = { c,'\0' };
 		return Output(str, max_length, width, width_decimal, pad);
 	}
 	
+	//bool
 	size_t Output(const bool b, const size_t max_length, const size_t width,const size_t width_decimal,const Pad pad) {
 		return Output(b ? "true" : "false", max_length, width, width_decimal, pad);
 	}
 
+	//string
 	size_t Output(const char* str, const size_t max_length, const size_t width,const size_t width_decimal,const Pad pad) {
 		const size_t length = GetLength(str);
 		size_t i = 0;
 		if (pad.right) {
 			//if misses the cast, underflow can happen
-			for (; (int)i < (int)(width - length); i++) {
+			for (; (int32_t)i < (int32_t)(width - length); i++) {
 				if (i == max_length) return max_length;
 				if (pad.zero) buffer[itr++] = '0';
 				else buffer[itr++] = ' ';
@@ -111,11 +117,14 @@ private:
 		}
 		return i;
 	}
-	size_t Output(const int _n, const size_t max_length, const size_t width,const size_t width_decimal,const Pad pad) {
-		char str[MAX_NUMBER_LENGTH]{};
 
-		int n = Abs(_n);
-		size_t length_to_print = GetOrder(n);
+	//int
+	size_t Output(const int32_t _n, const size_t max_length, const size_t width,const size_t width_decimal,const Pad pad) {
+		char str[MAX_NUMBER_LENGTH];
+
+		int32_t n = Abs(_n);
+		size_t digit = GetDigit(n);
+		size_t length_to_print = digit;
 
 		size_t printed_length = 0;
 		if (_n < 0) {
@@ -133,10 +142,11 @@ private:
 			}
 		}
 
-		for (size_t i = length_to_print - 1; n > 0; i--) {
-			str[i] = n % 10 + '0';
+		for (int32_t i = 0; i < digit ; i++) {
+			str[length_to_print - i - 1] = n % 10 + '0';
 			n /= 10;
 		}
+		str[length_to_print] = '\0';
 		return printed_length + Output(str, max_length - printed_length, width - printed_length, width_decimal, pad);
 	}
 
@@ -147,8 +157,8 @@ private:
 	}
 
 
-	size_t GetOrder(const int a) {
-		int n = Abs(a);
+	size_t GetDigit(const int32_t a) {
+		int32_t n = Abs(a);
 		if (n == 0) return 1;
 		size_t i = 0;
 		for (; n > 0; i++) n /= 10;
