@@ -64,7 +64,7 @@ public:
 		}
 		else width_decimal = 6;
 
-		printed_width += Output(head, max_width, width, width_decimal, pad);
+		printed_width += Output(head, max_width - printed_width, width, width_decimal, pad);
 		return printed_width + Print(++format, max_width - printed_width, tail...);
 	}
 
