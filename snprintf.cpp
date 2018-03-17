@@ -65,7 +65,7 @@ public:
 				width_decimal += *format - '0';
 			}
 		}
-		else width_decimal=0;
+		else width_decimal = 6;
 
 		length += Output(head, max_length, width, width_decimal, pad);
 		return length + Print(++format, max_length - length, tail...);
@@ -123,7 +123,7 @@ private:
 		char str[MAX_NUMBER_LENGTH];
 
 		int32_t n = Abs(_n);
-		size_t digit = GetDigit(n);
+		const size_t digit = GetDigit(n);
 		size_t length_to_print = digit;
 
 		size_t printed_length = 0;
@@ -150,6 +150,48 @@ private:
 		return printed_length + Output(str, max_length - printed_length, width - printed_length, width_decimal, pad);
 	}
 
+	//float
+	size_t Output(const float _n, const size_t max_length, const size_t width,const size_t width_decimal,const Pad pad) {
+		char str[MAX_NUMBER_LENGTH];
+
+		int32_t integer = (int32_t)Abs(_n);
+		int32_t decimal = (Abs(_n) - (float)integer)*Pow10(width_decimal);
+		const size_t length_integer = GetDigit(integer);
+		size_t length_sign = 0;
+
+		size_t printed_length = 0;
+		if (_n < 0) {
+			if (pad.zero && pad.right) printed_length += PrintChar('-');
+			else {
+				str[0] = '-';
+				length_sign++;
+			}
+		}
+		if (_n >= 0 && pad.plus) {
+			if (pad.zero && pad.right) printed_length += PrintChar('+');
+			else {
+				str[0] = '+';
+				length_sign++;
+			}
+		}
+
+		for (int32_t i = 0; i < length_integer ; i++) {
+			str[length_sign + length_integer - i - 1] = integer % 10 + '0';
+			integer /= 10;
+		}
+		if(width_decimal > 0){
+			str[length_sign + length_integer] = '.';
+			for (int32_t i = 0; i < width_decimal ; i++) {
+				str[length_sign + length_integer + width_decimal - i] = decimal % 10 + '0';
+				decimal /= 10;
+			}	
+			str[length_sign + length_integer + width_decimal + 1] = '\0';
+		}
+		else str[length_sign + length_integer] = '\0';
+		
+		return printed_length + Output(str, max_length - printed_length, width - printed_length, width_decimal, pad);
+	}
+
 	size_t GetLength(const char* str) {
 		size_t i = 0;
 		for (; str[i] != '\0'; i++);
@@ -163,6 +205,12 @@ private:
 		size_t i = 0;
 		for (; n > 0; i++) n /= 10;
 		return i;
+	}
+
+	float Pow10(const uint32_t n){
+		float p = 1;
+		for(uint32_t i=0;i<n;i++) p*=10;
+		return p;
 	}
 
 	template<typename T>
@@ -179,9 +227,9 @@ private:
 int main()
 {
 	Snprintf po;
-	printf("%d\n", po.Print("_%6z_%-3z_%+z_", 100, "poyo", 'x', 23));
+	auto n = po.Print("_%6.5z_%-3z_%z_%z_", 100, "poyo", 'x', 12, -1.23456789f);
 	po.Show();
-	printf("\n");
+	printf("\nlength = %d\n", n);
 
 	return 0;
 }
