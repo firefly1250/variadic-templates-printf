@@ -97,7 +97,7 @@ private:
 		size_t i = 0;
 		if (pad.right) {
 			//if misses the cast, underflow can happen
-			for (; (int32_t)i < (int32_t)width - (int32_t)GetLength(str); i++) {
+			for (; (int32_t)i < (int32_t)width - (int32_t)GetWidth(str); i++) {
 				if (i == max_width) return max_width;
 				if (pad.zero) buffer[itr++] = '0';
 				else buffer[itr++] = ' ';
@@ -122,7 +122,7 @@ private:
 		char str[MAX_NUMBER_LENGTH];
 
 		int32_t integer = Abs(_n);
-		const size_t width_integer = GetDigit(integer);
+		const size_t width_integer = GetWidth(integer);
 		size_t width_sign = 0;
 
 		size_t printed_width = 0;
@@ -155,7 +155,7 @@ private:
 
 		int32_t integer = (int32_t)Abs(_n);
 		int32_t decimal = (Abs(_n) - (float)integer)*Pow10(width_decimal);
-		const size_t width_integer = GetDigit(integer);
+		const size_t width_integer = GetWidth(integer);
 		size_t width_sign = 0;
 
 		size_t printed_width = 0;
@@ -191,14 +191,14 @@ private:
 		return printed_width + Output(str, max_width - printed_width, width - printed_width, width_decimal, pad);
 	}
 
-	size_t GetLength(const char* str) {
+	size_t GetWidth(const char* str) {
 		size_t i = 0;
 		for (; str[i] != '\0'; i++);
 		return i;
 	}
 
 
-	size_t GetDigit(const int32_t a) {
+	size_t GetWidth(const int32_t a) {
 		int32_t n = Abs(a);
 		if (n == 0) return 1;
 		size_t i = 0;
