@@ -1,8 +1,5 @@
 #include <stdio.h>
 
-using int32_t = int;
-using uint32_t = unsigned int;
-
 class Snprintf {
 	static constexpr size_t MAX_NUMBER_LENGTH = 20;
 	unsigned char buffer[256];
@@ -97,7 +94,7 @@ private:
 		size_t i = 0;
 		if (pad.right) {
 			//if misses the cast, underflow can happen
-			for (; (int32_t)i < (int32_t)width - (int32_t)GetWidth(str); i++) {
+			for (; (int)i < (int)width - (int)GetWidth(str); i++) {
 				if (i == max_width) return max_width;
 				if (pad.zero) buffer[itr++] = '0';
 				else buffer[itr++] = ' ';
@@ -118,10 +115,10 @@ private:
 	}
 
 	//int
-	size_t Output(const int32_t _n, const size_t max_width, const size_t width,const size_t width_decimal,const Pad pad) {
+	size_t Output(const int _n, const size_t max_width, const size_t width,const size_t width_decimal,const Pad pad) {
 		char str[MAX_NUMBER_LENGTH];
 
-		int32_t integer = Abs(_n);
+		int integer = Abs(_n);
 		const size_t width_integer = GetWidth(integer);
 		size_t width_sign = 0;
 
@@ -141,7 +138,7 @@ private:
 			}
 		}
 
-		for (int32_t i = 0; i < width_integer ; i++) {
+		for (int i = 0; i < width_integer ; i++) {
 			str[width_sign + width_integer - i - 1] = integer % 10 + '0';
 			integer /= 10;
 		}
@@ -153,8 +150,8 @@ private:
 	size_t Output(const float _n, const size_t max_width, const size_t width,const size_t width_decimal,const Pad pad) {
 		char str[MAX_NUMBER_LENGTH];
 
-		int32_t integer = (int32_t)Abs(_n);
-		int32_t decimal = (Abs(_n) - (float)integer)*Pow10(width_decimal);
+		int integer = (int)Abs(_n);
+		int decimal = (Abs(_n) - (float)integer)*Pow10(width_decimal);
 		const size_t width_integer = GetWidth(integer);
 		size_t width_sign = 0;
 
@@ -174,13 +171,13 @@ private:
 			}
 		}
 
-		for (int32_t i = 0; i < width_integer ; i++) {
+		for (int i = 0; i < width_integer ; i++) {
 			str[width_sign + width_integer - i - 1] = integer % 10 + '0';
 			integer /= 10;
 		}
 		if(width_decimal > 0){
 			str[width_sign + width_integer] = '.';
-			for (int32_t i = 0; i < width_decimal ; i++) {
+			for (int i = 0; i < width_decimal ; i++) {
 				str[width_sign + width_integer + width_decimal - i] = decimal % 10 + '0';
 				decimal /= 10;
 			}	
@@ -197,18 +194,17 @@ private:
 		return i;
 	}
 
-
-	size_t GetWidth(const int32_t a) {
-		int32_t n = Abs(a);
+	size_t GetWidth(const int a) {
+		int n = Abs(a);
 		if (n == 0) return 1;
 		size_t i = 0;
 		for (; n > 0; i++) n /= 10;
 		return i;
 	}
 
-	float Pow10(const uint32_t n){
+	float Pow10(const unsigned int n){
 		float p = 1;
-		for(uint32_t i=0;i<n;i++) p*=10;
+		for(unsigned int i=0;i<n;i++) p*=10;
 		return p;
 	}
 
@@ -226,7 +222,7 @@ private:
 int main()
 {
 	Snprintf po;
-	auto n = po.Print("_%6.5z_%-3z_%z_%z_", 100, "poyo", 'x', 12, -1.23456789f);
+	auto n = po.Print("_%6.5z_%-3z_%04z_%7.3z_", 100, "poyo", 'x', 456, 5.3f);
 	po.Show();
 	printf("\nlength = %d\n", n);
 
