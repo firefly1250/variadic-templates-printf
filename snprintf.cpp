@@ -17,8 +17,11 @@ class Zsnprintf {
 public:
 	static size_t Print(char* buf, const size_t max_width, const char* format) {
 		if (format == nullptr) return 0;
-		return Output(buf, format, max_width, 0, 0, Pad::Default());
-	}
+		size_t printed_width = Output(buf, format, max_width, 0, 0, Pad::Default());
+		if (max_width == printed_width) return max_width;
+		PrintChar(buf,'\0');
+		return printed_width;
+	}	
 
 	template<typename Head, typename ... Tail>
 	static size_t Print(char* buf, const size_t max_width, const char* format, const Head& head, const Tail&... tail) {
@@ -26,14 +29,21 @@ public:
 
 		size_t printed_width = 0;
 		for (; *format != '%'; format++) {
-			if (max_width == printed_width || *format == '\0') return printed_width;
+			if (max_width == printed_width) return max_width;
+			if(*format == '\0'){
+				PrintChar(buf,'\0');
+				return printed_width;
+			} 
 			printed_width += PrintChar(buf, *format);
 		}
 		format++;
 		size_t width = 0;
 		Pad pad;
 
-		if (*format == '\0') return printed_width;
+		if(*format == '\0'){
+			PrintChar(buf,'\0');
+			return printed_width;
+		} 
 		if (*format == '%') {
 			printed_width += PrintChar(buf, '%');
 			return printed_width + Print(buf, max_width - printed_width, ++format, head, tail...);
